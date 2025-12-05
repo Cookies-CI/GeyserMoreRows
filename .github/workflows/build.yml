@@ -1,40 +1,43 @@
-name: Java CI
+name: GeyserMoreRows
 
 on:
-  push:
-    branches:
-      - main
-  workflow_dispatch:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+    release:
+        types: [created]
 
 jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-22.04
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      
-      - name: Setup Java JDK
-        uses: actions/setup-java@v3
-        with:
-          java-version: 21
-          distribution: 'zulu'
-          
-      - name: Restore Maven cache
-        uses: skjolber/maven-cache-github-action@v1
-        with:
-          step: restore
-          
-      - name: Build with Maven
-        run: mvn package
-        
-      - name: Save Maven cache
-        uses: skjolber/maven-cache-github-action@v1
-        with:
-          step: save
+    build:
+        runs-on: ubuntu-latest
 
-      - name: Capture Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: "geyser-more-rows"
-          path: target/*.jar
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Set up JDK
+              uses: actions/setup-java@v4
+              with:
+                  java-version: "21"
+                  distribution: "zulu"
+
+            - name: Build with Maven
+              run: mvn -B package
+              
+            - name: Cache Maven packages
+              uses: actions/cache@v4
+              with:
+                  path: ~/.m2
+                  key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+      
+            - name: Upload artifact
+              uses: actions/upload-artifact@v4
+              with:
+                  name: Plugin
+                  path: target/*.jar
+
+            - name: Upload to release
+              if: github.event_name == 'release'
+              uses: softprops/action-gh-release@v2
+              with:
+                  files: target/*.jar
