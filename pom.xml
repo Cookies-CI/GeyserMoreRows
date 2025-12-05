@@ -55,8 +55,8 @@
 
     <repositories>
         <repository>
-            <id>maven</id>
-            <url>https://repo1.maven.org/maven2</url>
+            <id>elytrium-repo</id>
+            <url>https://maven.elytrium.net/repo/</url>
         </repository>
         <repository>
             <id>papermc-repo</id>
